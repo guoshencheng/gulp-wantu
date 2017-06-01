@@ -1,0 +1,32 @@
+{
+  "name": "gulp-wantu",
+  "version": "0.0.1",
+  "description": "a gulp tool for wantu upload",
+  "main": "index.js",
+  "scripts": {
+    "test": "cd test && gulp wantu"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guoshencheng/gulp-wantu.git"
+  },
+  "keywords": [
+    "wantu",
+    "upload",
+    "gulp"
+  ],
+  "author": "century guo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/guoshencheng/gulp-wantu/issues"
+  },
+  "homepage": "https://github.com/guoshencheng/gulp-wantu#readme",
+  "dependencies": {
+    "gulp-util": "^3.0.8",
+    "through2": "^2.0.3",
+    "wantu-nodejsSDK": "^0.0.1"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1"
+  }
+}
