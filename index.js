@@ -45,7 +45,7 @@ const uploadQueue = (wantu, config, dir, filepath, name, fileKey) => {
         log("Upload faild, Start retry Upload retry times " + retry + " →", colors.cyan(fileKey));
         return upload(wantu, config, dir, filepath, name).then(uploadHandler);
       } else {
-        throw new WantuUploadFaildError();
+        throw new WantuUploadFaildError(data.message);
       }
     }
   })
@@ -95,6 +95,7 @@ module.exports = function(config, option) {
     }).catch(error => {
       if (error instanceof WantuUploadFaildError) {
         log("Upload faild →", colors.red(fileKey), colors.yellow(" retry too many times"));
+        log("Error message →", colors.red(error.message));
       } else {
         log("Upload faild →", colors.red(fileKey), colors.yellow(" with error message:" + err.message));
       }
