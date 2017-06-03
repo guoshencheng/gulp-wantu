@@ -20,7 +20,7 @@ const upload = (wantu, config, dir, filepath, name) => {
     insertOnly: 0,
     expiration: -1,
     namespace: config.namespace,
-    // sizeLimit: 1024,
+    // sizeLimit: 1024 * 5,
     name
   }
   return new Promise((resolve, reject) => {
@@ -75,19 +75,23 @@ module.exports = function(config, option) {
     var filename = path.basename(relativePath);
     var fileKey = dirname + "/" + filename;
     if (file._contents === null) return next();
-    exist(wantu, config, dirname, filename).then(data => {
+    exist(wantu, config, dirname, filename).catch(error => {
+      log(colors.red("check file exist fiald. please check your net work setting"));
+      throw error;
+    }).then(data => {
       if (data.exist == 0) {
         log("Start upload →", colors.magenta(fileKey));
         return uploadQueue(wantu, config, dirname, file.path, filename, fileKey)
       } else {
-        log("Skip →", colors.grey(fileKey));
-        next()
+        return false;
       }
     }).then(data => {
       if ( data ) {
         log("Upload success →", colors.green(fileKey));
-      }
-      return next()
+      } else {
+        log("Skip →", colors.grey(fileKey));
+      } 
+      next()
     }).catch(error => {
       if (error instanceof WantuUploadFaildError) {
         log("Upload faild →", colors.red(fileKey), colors.yellow(" retry too many times"));
