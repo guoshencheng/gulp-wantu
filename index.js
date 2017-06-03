@@ -3,14 +3,24 @@ var through = require("through2");
 var log = require("gulp-util").log;
 var colors = require("gulp-util").colors;
 var path = require("path");
-
 const MAX_RETRY = 3;
+
+function WantuUploadFaildError(message) {
+  this.name = "WantuUploadFaildError";
+  this.message = message || "wantu upload faild error";
+  this.stack = (new Error()).stack;
+}
+
+WantuUploadFaildError.prototype = Object.create(Error.prototype);
+WantuUploadFaildError.prototype.constructor = WantuUploadFaildError;
+
 
 const upload = (wantu, config, dir, filepath, name) => {
   const uploadPolicy = {
     insertOnly: 0,
     expiration: -1,
     namespace: config.namespace,
+    // sizeLimit: 1024,
     name
   }
   return new Promise((resolve, reject) => {
@@ -22,6 +32,24 @@ const upload = (wantu, config, dir, filepath, name) => {
       }
     })
   });
+}
+
+const uploadQueue = (wantu, config, dir, filepath, name, fileKey) => {
+  let retry = 0;
+  let uploadHandler = (data => {
+    if (data.code == "OK") {
+      return data;
+    } else {
+      if (retry < MAX_RETRY) {
+        retry ++;
+        log("Upload faild, Start retry Upload retry times " + retry + " →", colors.cyan(fileKey));
+        return upload(wantu, config, dir, filepath, name).then(uploadHandler);
+      } else {
+        throw new WantuUploadFaildError();
+      }
+    }
+  })
+  return upload(wantu, config, dir, filepath, name).then(uploadHandler);
 }
 
 const exist = (wantu, config, dir, filename) => {
@@ -49,21 +77,24 @@ module.exports = function(config, option) {
     if (file._contents === null) return next();
     exist(wantu, config, dirname, filename).then(data => {
       if (data.exist == 0) {
-        log("Start upload →", colors.yellow(fileKey));
-        return upload(wantu, config, dirname, file.path, filename)
+        log("Start upload →", colors.magenta(fileKey));
+        return uploadQueue(wantu, config, dirname, file.path, filename, fileKey)
       } else {
         log("Skip →", colors.grey(fileKey));
         next()
       }
     }).then(data => {
       if ( data ) {
-        if (data.code == "OK") {
-          log("Upload success →", colors.green(fileKey));
-        } else {
-          log("Upload failed →", colors.red(fileKey));
-        }
+        log("Upload success →", colors.green(fileKey));
       }
       return next()
+    }).catch(error => {
+      if (error instanceof WantuUploadFaildError) {
+        log("Upload faild →", colors.red(fileKey), colors.yellow(" retry too many times"));
+      } else {
+        log("Upload faild →", colors.red(fileKey), colors.yellow(" with error message:" + err.message));
+      }
+      next()
     })
   })
 }

@@ -24,7 +24,7 @@ npm install gulp-wantu --save-dev
   }))
 
 ```
+- [x] retry when upload failed
+- [ ] add summary when finish upload
 
-## License
-
-MIT
+## [License](https://github.com/guoshencheng/gulp-wantu/blob/master/LICENSE)
