@@ -1,6 +1,6 @@
 {
   "name": "gulp-wantu",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "a gulp tool for wantu upload",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,7 @@
   "dependencies": {
     "gulp-util": "^3.0.8",
     "through2": "^2.0.3",
-    "wantu-nodejsSDK": "^0.0.1"
+    "wantu": "^0.0.1"
   },
   "devDependencies": {
     "gulp": "^3.9.1"
